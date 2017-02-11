@@ -1,6 +1,6 @@
 package machinamagnifica;
 
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -8,7 +8,7 @@ import java.io.PrintStream;
 import java.util.Arrays;
 
 public class MachinaMagnifica {
-	private final static boolean DEBUG = true;
+	private final static boolean DEBUG = false;
 	
 	private final static int DEFAULT_NB_REGISTRE = 8;
 	private final static int DEFAULT_MEMORY_SIZE = 256;
@@ -19,8 +19,8 @@ public class MachinaMagnifica {
 	private PrintStream out;
 	private InputStream in;
 
-	private FileReader inputFileReader;
-	private char[] readerBuffer;
+	private FileInputStream inputFileReader;
+	private byte[] readerBuffer;
 	
 	private boolean isOn;
 
@@ -37,9 +37,9 @@ public class MachinaMagnifica {
 		isOn = true;
 	}
 
-	public void run(FileReader inputReader) throws IOException {
+	public void run(FileInputStream inputReader) throws IOException {
 		inputFileReader = inputReader;
-		readerBuffer = new char[DEFAULT_LOAD_SIZE];
+		readerBuffer = new byte[DEFAULT_LOAD_SIZE];
 		
 		int op;
 		PlateauDeSable crtInstruction;
@@ -55,7 +55,7 @@ public class MachinaMagnifica {
 
 			if (DEBUG) {
 				System.out.println("Plateau ->");
-				System.out.println(crtInstruction);
+				System.out.println(crtInstruction + " : " + crtInstruction.toInt() + " : " + Integer.toHexString(crtInstruction.toInt()));
 				System.out.println("OP -> " + op);
 				System.out.println("Registres ->");
 				System.out.println(Arrays.toString(reg));
@@ -124,6 +124,11 @@ public class MachinaMagnifica {
 		PlateauDeSable result = new PlateauDeSable();
 
 		inputFileReader.read(readerBuffer);
+		
+		if (DEBUG) {
+			System.out.println("Loading " + Integer.toHexString(readerBuffer[0]) + " " + Integer.toHexString(readerBuffer[1]) + ".");
+		}
+			
 		
 		result.setData(readerBuffer);
 
@@ -270,5 +275,14 @@ public class MachinaMagnifica {
 	// 13(S): Orthographe
 	private void orthographe(Registre a, int value) {
 		a.setData(value);
+	}
+	
+	public static void main(String[] args) {
+		//10111111 11111111 00000000 00010000 : 134283261 : 800fffd
+		//00001000 00000000 00000000 11010000 : 134217936 : 80000d0
+
+		int i = 0x080000D0;
+		
+		System.out.println(Integer.toBinaryString(i) + " : " + i + " : " + Integer.toHexString(i));
 	}
 }

@@ -24,6 +24,7 @@ public class PlateauDeSable {
 		}
 	}
 
+	//For debug purpose
 	public void setData(String newData) throws InvalidDataException {
 		for(int i = 0; i < newData.length() && i < DEFAULT_DATA_SIZE; i++) {
 			if (newData.charAt(i) == '1')
@@ -62,7 +63,7 @@ public class PlateauDeSable {
 		}
 	}
 
-	public void setData(Byte[] d) {
+	public void setData(byte[] d) {
 		int result = 0;
 		for (int i = 0; i < d.length; i++) {
 			result += d[i] & 0xFF;
@@ -78,7 +79,7 @@ public class PlateauDeSable {
 		for (int i = 0; i < d.length; i++) {
 			result += d[i] & 0xFFFF;
 			if (i < d.length-1)
-				result = result << 8;
+				result = result << 16;
 		}
 		
 		setData(result);
@@ -156,6 +157,21 @@ public class PlateauDeSable {
 		}
 
 		return result;
+	}
+	
+	public static void main(String[] args) {
+		PlateauDeSable p = new PlateauDeSable();
+		
+		
+		int i = 0x80000d0;
+		String b = "0101";
+		p.setData(i);
+		System.out.println("Original : 0x80000d0");
+		System.out.println("Conversion : 0x" + Integer.toHexString(p.toInt()));
+		
+		System.out.println(b);
+		System.out.println(p);
+		System.out.println(p.toInt());
 	}
 	
 }

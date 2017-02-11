@@ -73,6 +73,17 @@ public class PlateauDeSable {
 		setData(result);
 	}
 
+	public void setData(char[] d) {
+		int result = 0;
+		for (int i = 0; i < d.length; i++) {
+			result += d[i] & 0xFFFF;
+			if (i < d.length-1)
+				result = result << 8;
+		}
+		
+		setData(result);
+	}
+	
 	public void setDataOffset(int offset, boolean[] d) {
 		for (int i = offset, j = 0; i < data.length; i++, j++) {
 			data[i] = d[j];
@@ -147,20 +158,4 @@ public class PlateauDeSable {
 		return result;
 	}
 	
-
-	public static void main(String[] args) {
-		PlateauDeSable p = new PlateauDeSable();
-		
-		try {
-			p.setData("11100110000000000000000001001000");
-			System.out.println(p);
-			System.out.println(p.getOperator());
-			System.out.println(p.getSpecialRegistre());
-			System.out.println(p.getSpecialValue());
-			System.out.println(Arrays.toString(p.getRegistres()));
-		} catch (InvalidDataException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
 }

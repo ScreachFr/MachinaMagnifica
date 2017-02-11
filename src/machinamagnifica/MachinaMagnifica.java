@@ -1,12 +1,15 @@
 package machinamagnifica;
 
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.util.Scanner;
+import java.util.Arrays;
 
 public class MachinaMagnifica {
+	private final static boolean DEBUG = true;
+	
 	private final static int DEFAULT_NB_REGISTRE = 8;
 	private final static int DEFAULT_MEMORY_SIZE = 256;
 	private final static int DEFAULT_LOAD_SIZE = 4; //J'avais pas d'autre nom en tête...
@@ -16,8 +19,9 @@ public class MachinaMagnifica {
 	private PrintStream out;
 	private InputStream in;
 
-	private Scanner inputFile;
-
+	private FileReader inputFileReader;
+	private char[] readerBuffer;
+	
 	private boolean isOn;
 
 	public MachinaMagnifica() {
@@ -33,13 +37,10 @@ public class MachinaMagnifica {
 		isOn = true;
 	}
 
-
-	public Registre[] getRegistres() {
-		return registres;
-	}
-
-	public void run(Scanner inpuScanner) {
-		inputFile = inpuScanner;
+	public void run(FileReader inputReader) throws IOException {
+		inputFileReader = inputReader;
+		readerBuffer = new char[DEFAULT_LOAD_SIZE];
+		
 		int op;
 		PlateauDeSable crtInstruction;
 		int[] reg;
@@ -51,6 +52,15 @@ public class MachinaMagnifica {
 			a = registres[reg[0]];
 			b = registres[reg[1]];
 			c = registres[reg[2]];
+
+			if (DEBUG) {
+				System.out.println("Plateau ->");
+				System.out.println(crtInstruction);
+				System.out.println("OP -> " + op);
+				System.out.println("Registres ->");
+				System.out.println(Arrays.toString(reg));
+			}
+			
 			switch (op) {
 			case 0:
 				ifC(a, b, c);
@@ -102,19 +112,20 @@ public class MachinaMagnifica {
 
 		}
 
-		inputFile.close();
+		try {
+			inputReader.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 
-	public PlateauDeSable loadNextPlateauDeSableFromInput() {
+	private PlateauDeSable loadNextPlateauDeSableFromInput() throws IOException {
 		PlateauDeSable result = new PlateauDeSable();
-		Byte[] rawData = new Byte[DEFAULT_LOAD_SIZE];
 
-		for (int i = 0; i < DEFAULT_LOAD_SIZE; i++) {
-			rawData[i] = inputFile.nextByte();
-		}
-
-		result.setData(rawData);
+		inputFileReader.read(readerBuffer);
+		
+		result.setData(readerBuffer);
 
 		return result;
 	}
@@ -122,13 +133,13 @@ public class MachinaMagnifica {
 	/**Opérateurs**/
 
 	// 0: Mouvement conditionnel
-	public void ifC(Registre a, Registre b, Registre c) {
+	private void ifC(Registre a, Registre b, Registre c) {
 		if (!c.equalsZero())
 			a.copyFrom(b);
 	}
 
 	// 1: Indice tableau
-	public void getOffset(Registre a, Registre b, Registre c) {
+	private void getOffset(Registre a, Registre b, Registre c) {
 		boolean[] dataA = a.getData();
 		boolean[] dataB = b.getData();
 
@@ -137,7 +148,7 @@ public class MachinaMagnifica {
 	}
 
 	// 2: Modification tableau
-	public void arrayModif(Registre a, Registre b, Registre c) {
+	private void arrayModif(Registre a, Registre b, Registre c) {
 		boolean[] dataA = a.getData();
 		boolean[] dataC = c.getData();
 
@@ -146,7 +157,7 @@ public class MachinaMagnifica {
 	}
 
 	// 3: Addition
-	public void add(Registre a, Registre b, Registre c) {
+	private void add(Registre a, Registre b, Registre c) {
 		boolean[] dataA = a.getData();
 		boolean[] dataB = b.getData();
 		boolean[] dataC = c.getData();
@@ -183,17 +194,17 @@ public class MachinaMagnifica {
 	}
 
 	// 4: Multiplication
-	public void mul(Registre a, Registre b, Registre c) {
+	private void mul(Registre a, Registre b, Registre c) {
 		c.setData(a.toInt() * b.toInt());
 	}
 
 	// 5: Division
-	public void div(Registre a, Registre b, Registre c) {
+	private void div(Registre a, Registre b, Registre c) {
 		c.setData(a.toInt() / b.toInt());
 	}
 
 	// 6: Not-And
-	public void nand(Registre a, Registre b, Registre c) {
+	private void nand(Registre a, Registre b, Registre c) {
 		boolean[] dataA = a.getData();
 		boolean[] dataB = b.getData();
 		boolean[] dataC = c.getData();
@@ -208,12 +219,12 @@ public class MachinaMagnifica {
 	}
 
 	// 7: Stop
-	public void stop() {
+	private void stop() {
 		isOn = false;
 	}
 
 	// 8: Allocation
-	public void alloc(Registre b, Registre c) {
+	private void alloc(Registre b, Registre c) {
 		int size = c.toInt();
 		int address = memoire.getFreeAddress();
 
@@ -223,12 +234,12 @@ public class MachinaMagnifica {
 	}
 
 	// 9: Abandon
-	public void free(Registre c) {
+	private void free(Registre c) {
 		memoire.free(c.toInt());
 	}
 
 	// 10: Sortie
-	public void print(Registre c) {
+	private void print(Registre c) {
 		int toPrint = c.toInt();
 
 		if (toPrint >= 0 && toPrint <= 255)
@@ -236,7 +247,7 @@ public class MachinaMagnifica {
 	}
 
 	// 11: Entrée
-	public void input(Registre c) {
+	private void input(Registre c) {
 		try {
 			InputStreamReader reader = new InputStreamReader(in);
 			char input = 0;
@@ -252,21 +263,12 @@ public class MachinaMagnifica {
 	}
 	
 	// 12: Chargement de programme
-	public void loadProgram(Registre c) {
+	private void loadProgram(Registre c) {
 		memoire.setData(0, memoire.cpy(c.toInt()));
 	}
 	
 	// 13(S): Orthographe
-	public void orthographe(Registre a, int value) {
+	private void orthographe(Registre a, int value) {
 		a.setData(value);
 	}
-
-	public static void main(String[] args) {
-		Registre test = new Registre();
-		MachinaMagnifica m = new MachinaMagnifica();
-
-		m.input(test);
-		System.out.println(test);
-	}
-
 }

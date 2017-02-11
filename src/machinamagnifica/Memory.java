@@ -29,4 +29,22 @@ public class Memory {
 	public void free(int address) {
 		memory[address] = null;
 	}
+	
+	public PlateauDeSable[] getData(int address) {
+		return memory[address];
+	}
+	
+	public void setData(int address, PlateauDeSable[] data) {
+		memory[address] = data;
+	}
+	
+	public PlateauDeSable[] cpy(int address) {
+		PlateauDeSable[] result = new PlateauDeSable[memory[address].length];
+		
+		for (int i = 0; i < result.length; i++) {
+			result[i] = memory[address][i].cpy();
+		}
+		
+		return result;
+	}
 }

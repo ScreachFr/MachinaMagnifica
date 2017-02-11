@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.util.ArrayList;
 import java.util.Scanner;
 
 public class MachinaMagnifica {
@@ -89,7 +88,12 @@ public class MachinaMagnifica {
 			case 11:
 				input(c);
 				break;
-
+			case 12:
+				loadProgram(c);
+				break;
+			case 13:
+				orthographe(registres[crtInstruction.getSpecialRegistre()], crtInstruction.getSpecialValue());
+				break;
 			default:
 				System.out.println("Error, unknown operator!");
 				isOn = false;
@@ -246,8 +250,16 @@ public class MachinaMagnifica {
 			e.printStackTrace();
 		}
 	}
-
-
+	
+	// 12: Chargement de programme
+	public void loadProgram(Registre c) {
+		memoire.setData(0, memoire.cpy(c.toInt()));
+	}
+	
+	// 13(S): Orthographe
+	public void orthographe(Registre a, int value) {
+		a.setData(value);
+	}
 
 	public static void main(String[] args) {
 		Registre test = new Registre();
@@ -257,27 +269,4 @@ public class MachinaMagnifica {
 		System.out.println(test);
 	}
 
-	private enum NomRegistre {
-		A("A", 0), B("B", 1), C("C", 2), D("D", 3);
-
-		private int i;
-		private String nom;
-
-		private NomRegistre(String nom, int i) {
-			this.i = i;
-			this.nom = nom;
-		}
-
-		public int getI() {
-			return i;
-		}
-
-		public String getNom() {
-			return nom;
-		}
-
-		public boolean equals(String s) {
-			return nom.equals(s);
-		}
-	}
 }

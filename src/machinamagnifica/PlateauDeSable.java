@@ -63,17 +63,14 @@ public class PlateauDeSable {
 	}
 
 	public void setData(Byte[] d) {
-		String result = "";
-
-		for (Byte b : d) {
-			result += byteToString(b);
+		int result = 0;
+		for (int i = 0; i < d.length; i++) {
+			result += d[i] & 0xFF;
+			if (i < d.length-1)
+				result = result << 8;
 		}
-
-		try {
-			setData(result);
-		} catch (InvalidDataException e) {
-			//N'arrive jamais
-		}
+		
+		setData(result);
 	}
 
 	public void setDataOffset(int offset, boolean[] d) {
@@ -83,16 +80,21 @@ public class PlateauDeSable {
 	}
 
 	public int getDataOffset(int offset) {
+		return getDataOffset(offset, DEFAULT_DATA_SIZE);
+	}
+
+	//bits = how many bits ?
+	public int getDataOffset(int offset, int bits) {
 		int result = 0;
 
-		for (int i = offset, j = 0; i < data.length; i++, j++) {
+		for (int i = offset, j = 0; i < data.length && j < bits; i++, j++) {
 			if (data[i])
 				result += Math.pow(2, j);
 		}
 
 		return result;
 	}
-
+	
 	public void setDataToOne() {
 		Arrays.fill(data, true);
 	}
@@ -105,57 +107,60 @@ public class PlateauDeSable {
 		return getDataOffset(DEFAULT_DATA_SIZE-4);
 	}
 
-	private static String byteToString(Byte b) {
-		String result = "";
-
-		result += Integer.toString(b & 0xFF, 2);
-
-
-		int toAdd = 7 - result.length();
-
-		for (int i = 0; i < toAdd; i++) {
-			result = '0' + result;
-		}
-		
-
-		return '0' + result;
-	}
 
 	public int[] getRegistres() {
-		//TODO
-		return new int[]{0, 1, 2};
+		int a = getDataOffset(0, 3);
+		int b = getDataOffset(3, 3);
+		int c = getDataOffset(6, 3);
+		return new int[]{a, b, c};
 	}
 	
+	public int getSpecialRegistre() {
+		return getDataOffset(DEFAULT_DATA_SIZE-7, 3);
+	}
+	
+	public int getSpecialValue() {
+		return getDataOffset(0, 25);
+	}
+	
+	public PlateauDeSable cpy() {
+		PlateauDeSable result = new PlateauDeSable();
+		result.data = Arrays.copyOf(data, data.length);
+		
+		return result;
+	}
+
 	@Override
 	public String toString() {
 		String result = "";
-		for (int i = 0; i < data.length; i++) {
-
-		}
+		int i = 0;
 		for (boolean d : data) {
+			i++;
 			if (d)
 				result += "1";
 			else
 				result += "0";
+			if (i%8 == 0)
+				result += " ";
 		}
 
 		return result;
 	}
+	
 
 	public static void main(String[] args) {
 		PlateauDeSable p = new PlateauDeSable();
-
-		byte zero = 0;
-		byte un = 0b0000001;
-		byte soizanteQuatre = 0b1000000;
-		System.out.println("un : " + byteToString(un));
-		System.out.println("127 : " + byteToString(soizanteQuatre));
 		
-		Byte[] tab = {soizanteQuatre, soizanteQuatre, un, un};
-
-		p.setData(tab);
-		System.out.println(p.toInt());
-		System.out.println(p);
-		System.out.println(p.toString().length());
+		try {
+			p.setData("11100110000000000000000001001000");
+			System.out.println(p);
+			System.out.println(p.getOperator());
+			System.out.println(p.getSpecialRegistre());
+			System.out.println(p.getSpecialValue());
+			System.out.println(Arrays.toString(p.getRegistres()));
+		} catch (InvalidDataException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

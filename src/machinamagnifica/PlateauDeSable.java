@@ -64,6 +64,8 @@ public class PlateauDeSable {
 	}
 
 	public void setData(byte[] d) {
+			
+		
 		int result = 0;
 		for (int i = 0; i < d.length; i++) {
 			result += d[i] & 0xFF;

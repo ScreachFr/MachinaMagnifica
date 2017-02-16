@@ -8,7 +8,7 @@ import java.io.PrintStream;
 import java.util.Arrays;
 
 public class MachinaMagnifica {
-	private final static boolean DEBUG = false;
+	public final static boolean DEBUG = true;
 	
 	private final static int DEFAULT_NB_REGISTRE = 8;
 	private final static int DEFAULT_MEMORY_SIZE = 256;
@@ -126,7 +126,7 @@ public class MachinaMagnifica {
 		inputFileReader.read(readerBuffer);
 		
 		if (DEBUG) {
-			System.out.println("Loading " + Integer.toHexString(readerBuffer[0]) + " " + Integer.toHexString(readerBuffer[1]) + ".");
+			System.out.println("Loading " + Integer.toHexString(readerBuffer[0] & 0xFF) + " " + Integer.toHexString(readerBuffer[1] & 0xFF) + ".");
 		}
 			
 		
@@ -145,20 +145,16 @@ public class MachinaMagnifica {
 
 	// 1: Indice tableau
 	private void getOffset(Registre a, Registre b, Registre c) {
-		boolean[] dataA = a.getData();
-		boolean[] dataB = b.getData();
-
-		for (int i = c.toInt(), j = 0; i < dataA.length; i++, j++)
-			dataB[j] = dataA[i];
+		int offset = c.toInt(); 
+		a.setData(memoire.getData(b.toInt())[offset].getData());
 	}
 
 	// 2: Modification tableau
 	private void arrayModif(Registre a, Registre b, Registre c) {
-		boolean[] dataA = a.getData();
-		boolean[] dataC = c.getData();
-
-		for (int i = b.toInt(), j = 0; i < dataA.length; i++, j++)
-			dataA[j] = dataC[i];
+		int adress = a.toInt();
+		int offset = b.toInt();
+		
+		memoire.getData(adress)[offset].setData(c.getData());
 	}
 
 	// 3: Addition
@@ -246,9 +242,11 @@ public class MachinaMagnifica {
 	// 10: Sortie
 	private void print(Registre c) {
 		int toPrint = c.toInt();
-
-		if (toPrint >= 0 && toPrint <= 255)
-			out.print((char)toPrint);
+		
+		if (toPrint >= 0 && toPrint <= 255) {
+			Character chara = new Character((char) toPrint);
+			out.print(chara);
+		}
 	}
 
 	// 11: Entrée
@@ -275,14 +273,5 @@ public class MachinaMagnifica {
 	// 13(S): Orthographe
 	private void orthographe(Registre a, int value) {
 		a.setData(value);
-	}
-	
-	public static void main(String[] args) {
-		//10111111 11111111 00000000 00010000 : 134283261 : 800fffd
-		//00001000 00000000 00000000 11010000 : 134217936 : 80000d0
-
-		int i = 0x080000D0;
-		
-		System.out.println(Integer.toBinaryString(i) + " : " + i + " : " + Integer.toHexString(i));
 	}
 }

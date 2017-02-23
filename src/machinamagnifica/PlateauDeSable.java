@@ -1,5 +1,6 @@
 package machinamagnifica;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 
@@ -64,8 +65,6 @@ public class PlateauDeSable {
 	}
 
 	public void setData(byte[] d) {
-			
-		
 		int result = 0;
 		for (int i = 0; i < d.length; i++) {
 			result += d[i] & 0xFF;
@@ -76,6 +75,7 @@ public class PlateauDeSable {
 		setData(result);
 	}
 
+	
 	public void setData(char[] d) {
 		int result = 0;
 		for (int i = 0; i < d.length; i++) {
@@ -147,33 +147,34 @@ public class PlateauDeSable {
 	@Override
 	public String toString() {
 		String result = "";
-		int i = 0;
-		for (boolean d : data) {
-			i++;
-			if (d)
+		for (int i = DEFAULT_DATA_SIZE; i > 0; i--) {
+			if (data[i-1])
 				result += "1";
 			else
 				result += "0";
-			if (i%8 == 0)
+			
+			if (((i-1)%8) == 0) {
 				result += " ";
+			}
 		}
 
+		return result;
+	}
+	
+	public String toSexyString() {
+		String result = toString();
+		int v = toInt();
+		int[] reg = getRegistres();
+		result += " : " + v + " : " + Integer.toHexString(v) + " : regs->" + reg[0] + ", " + reg[1] + ", " + reg[2];
 		return result;
 	}
 	
 	public static void main(String[] args) {
 		PlateauDeSable p = new PlateauDeSable();
 		
-		
 		int i = 0x80000d0;
-		String b = "0101";
 		p.setData(i);
-		System.out.println("Original : 0x80000d0");
-		System.out.println("Conversion : 0x" + Integer.toHexString(p.toInt()));
-		
-		System.out.println(b);
 		System.out.println(p);
-		System.out.println(p.toInt());
 	}
 	
 }

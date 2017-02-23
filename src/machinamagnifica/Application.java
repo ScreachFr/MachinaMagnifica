@@ -2,8 +2,8 @@ package machinamagnifica;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintStream;
 
 public class Application {
 	public static void main(String[] args) {
@@ -18,17 +18,17 @@ public class Application {
 		
 		try {
 			
-			
+			PrintStream logs = new PrintStream(new File("log.txt"));
 //			FileInputStream fr = new FileInputStream(codex);
 			FileInputStream fr = new FileInputStream(sandMark);
 			
-			MachinaMagnifica mm = new MachinaMagnifica();
-
-			mm.run(fr);
+			MachinaMagnifica mm = new MachinaMagnifica(fr);
+			mm.loadProgramFromStream();
+			mm.run();
 			
+			logs.close();
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		

@@ -22,7 +22,7 @@ public class Application {
 //			FileInputStream fr = new FileInputStream(codex);
 			FileInputStream fr = new FileInputStream(sandMark);
 			
-			MachinaMagnifica mm = new MachinaMagnifica(fr);
+			MachinaMagnifica mm = new MachinaMagnifica(fr, logs);
 			mm.loadProgramFromStream();
 			mm.run();
 			

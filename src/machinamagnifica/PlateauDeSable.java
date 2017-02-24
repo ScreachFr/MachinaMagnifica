@@ -1,6 +1,5 @@
 package machinamagnifica;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
 
@@ -123,9 +122,9 @@ public class PlateauDeSable {
 
 
 	public int[] getRegistres() {
-		int a = getDataOffset(0, 3);
+		int c = getDataOffset(0, 3);
 		int b = getDataOffset(3, 3);
-		int c = getDataOffset(6, 3);
+		int a = getDataOffset(6, 3);
 		return new int[]{a, b, c};
 	}
 	
@@ -139,7 +138,10 @@ public class PlateauDeSable {
 	
 	public PlateauDeSable cpy() {
 		PlateauDeSable result = new PlateauDeSable();
-		result.data = Arrays.copyOf(data, data.length);
+		
+		for (int i = 0; i < result.data.length; i++) {
+			result.data[i] = this.data[i];
+		}
 		
 		return result;
 	}
@@ -163,9 +165,9 @@ public class PlateauDeSable {
 	
 	public String toSexyString() {
 		String result = toString();
-		int v = toInt();
 		int[] reg = getRegistres();
-		result += " : " + v + " : " + Integer.toHexString(v) + " : regs->" + reg[0] + ", " + reg[1] + ", " + reg[2];
+//		result += " : " + v + " : " + Integer.toHexString(v) + " : regs->" + Arrays.toString(reg) + ": op->" + getOperator();
+		result += " : regs->" + Arrays.toString(reg) + ": op->" + getOperator();
 		return result;
 	}
 	

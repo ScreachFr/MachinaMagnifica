@@ -10,7 +10,7 @@ import java.util.Arrays;
 
 public class MachinaMagnifica {
 	private boolean DEBUG = false;
-	private boolean VERBOSE = true;
+	private boolean VERBOSE = false;
 	
 	
 	private final static int DEFAULT_NB_REGISTRE = 8;
@@ -56,10 +56,10 @@ public class MachinaMagnifica {
 		ArrayList<PlateauDeSable> programme = new ArrayList<>();
 		PlateauDeSable crt;
 		
-		
 		try {
 			while (inputFileReader.read(readerBuffer) > 0) {
 				crt = new PlateauDeSable();
+				
 				
 				crt.setData(readerBuffer);
 				programme.add(crt);
@@ -82,12 +82,18 @@ public class MachinaMagnifica {
 		
 		while (isOn) {
 			tour++;
+			
+//			if (tour >= 100)
+//				stop();
 			crtInstruction = memoire.getData(0)[finger];
 			op = crtInstruction.getOperator();
 			reg = crtInstruction.getRegistres();
 			a = registres[reg[0]];
 			b = registres[reg[1]];
 			c = registres[reg[2]];
+			
+			finger++;
+			
 
 			if (DEBUG) {
 				logsOut.println("Tour -> " + tour);
@@ -100,6 +106,7 @@ public class MachinaMagnifica {
 			}
 			
 			if (VERBOSE) {
+				System.out.println(tour);
 				System.out.println("OP -> " + op);
 			}
 			
@@ -141,7 +148,7 @@ public class MachinaMagnifica {
 				input(c);
 				break;
 			case 12:
-				loadProgram(b);
+				loadProgram(b, c);
 				break;
 			case 13:
 				int value = crtInstruction.getSpecialValue();
@@ -149,7 +156,7 @@ public class MachinaMagnifica {
 				
 				if (DEBUG)
 					logsOut.println("Running special op 13 on registre " + spReg + " with value " + (char)value + "(" + value + ")");
-				orthographe(registres[spReg], value);
+				orthographe(crtInstruction);
 				break;
 			default:
 				System.out.println("Error, unknown operator!");
@@ -157,12 +164,12 @@ public class MachinaMagnifica {
 				break;
 			}
 			
+
 			if (DEBUG) {
 				logsOut.println(regDump());
 				logsOut.println();
 			}
-			if (op != 12)//Ne pas modifier finger quand un program vient d'être chargé.
-				finger++;
+			
 		}
 
 	}
@@ -179,10 +186,11 @@ public class MachinaMagnifica {
 	// 1: Indice tableau
 	public void getOffset(Registre a, Registre b, Registre c) {
 		int offset = c.toInt(); 
-		a.setData(memoire.getData(b.toInt())[offset].getData());
+		int address = b.toInt();
+		a.setData(memoire.getData(address)[offset].getData());
 	}
 
-	// 2: Modification tableau
+	// 2: Modification tableau (=amendment)
 	public void arrayModif(Registre a, Registre b, Registre c) {
 		int adress = a.toInt();
 		int offset = b.toInt();
@@ -192,49 +200,17 @@ public class MachinaMagnifica {
 
 	// 3: Addition
 	public void add(Registre a, Registre b, Registre c) {
-		boolean[] dataA = a.getData();
-		boolean[] dataB = b.getData();
-		boolean[] dataC = c.getData();
-
-		boolean va, vb;
-		boolean retenue = false;
-		for (int i = 0; i < PlateauDeSable.DEFAULT_DATA_SIZE; i++) {
-			va = dataA[i];
-			vb = dataB[i];
-
-			if(retenue) {
-				if(va && vb){
-					dataC[i] = true;
-				} else if (!va && !vb){
-					dataC[i] = true;
-					retenue = false;
-				} else {
-					dataC[i] = false;
-				}
-			} else {
-				if(va && vb){
-					dataC[i] = false;
-					retenue = true;
-				} else if(!va && !vb){
-					dataC[i] = false;
-				} else{
-					dataC[i] = true;
-				}
-
-			}
-
-		}
-
+		a.setData(b.toInt() + c.toInt());
 	}
 
 	// 4: Multiplication
 	public void mul(Registre a, Registre b, Registre c) {
-		c.setData(a.toInt() * b.toInt());
+		a.setData(c.toInt() * b.toInt());
 	}
 
 	// 5: Division
 	public void div(Registre a, Registre b, Registre c) {
-		c.setData(Integer.divideUnsigned(a.toInt(), b.toInt()));
+		a.setData(Integer.divideUnsigned(b.toInt(), c.toInt()));
 	}
 
 	// 6: Not-And
@@ -244,10 +220,10 @@ public class MachinaMagnifica {
 		boolean[] dataC = c.getData();
 
 		for (int i = 0; i < Registre.DEFAULT_DATA_SIZE; i++) {
-			if (dataA[i] != dataB[i])
-				dataC[i] = true;
+			if (!(dataB[i] && dataC[i]))
+				dataA[i] = true;
 			else
-				dataC[i] = false;
+				dataA[i] = false;
 		}
 
 	}
@@ -305,28 +281,25 @@ public class MachinaMagnifica {
 	}
 	
 	// 12: Chargement de programme
-	public void loadProgram(Registre b) {
+	public void loadProgram(Registre b, Registre c) {
 		if (DEBUG) {
 			logsOut.println("Loading " + b.toInt());
 			logsOut.println("which contains " + memoire.getData(b.toInt()).length + " plateaux");
 		}
 		
 		PlateauDeSable[] cpy = memoire.cpy(b.toInt());
-		
-		if (DEBUG) {
-			logsOut.println("LOAD affiche : " + Arrays.toString(cpy));
-			for (PlateauDeSable p : cpy) {
-				logsOut.println(p);
-			}
-		}
-		
 		memoire.setData(0, cpy);
-		finger = 0;
+		finger = c.toInt();
+		
+		if (VERBOSE) {
+			System.out.println("finger->" + finger);
+		}
 	}
 	
 	// 13(S): Orthographe
-	public void orthographe(Registre a, int value) {
-		a.setData(value);
+	public void orthographe(PlateauDeSable p) {
+		Registre a  = registres[p.getSpecialRegistre()];
+		a.setData(p.getSpecialValue());
 	}
 	
 	

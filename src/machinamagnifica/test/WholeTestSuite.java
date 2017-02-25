@@ -6,7 +6,6 @@ import org.junit.runners.Suite;
 
 @RunWith(value=Suite.class)
 @SuiteClasses(value={
-		machinamagnifica.test.MachinaMagnificaTest.class,
 		machinamagnifica.test.PlateauDeSableTest.class,
 		machinamagnifica.test.MemoryTest.class
 })

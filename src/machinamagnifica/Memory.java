@@ -12,15 +12,19 @@ public class Memory {
 	public int getFreeAddress() {
 		for (int i = 0; i < memory.length; i++) {
 			if (memory[i] == null || memory[i].length == 0) {
+//				System.out.println("nextFree address : " + i);
 				return i;
 			}
 		}
+		
 		
 		return -1;
 	}
 	
 	public PlateauDeSable[] alloc(int address, int size) {
 		memory[address] = new PlateauDeSable[size];
+		
+//		System.out.println("new alloc size " + size);
 		
 		for	(int i = 0; i < size; i++)
 			memory[address][i] = new PlateauDeSable();

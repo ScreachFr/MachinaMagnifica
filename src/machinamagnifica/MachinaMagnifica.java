@@ -53,7 +53,7 @@ public class MachinaMagnifica {
 	
 	public void loadProgramFromStream() {
 		byte[] readerBuffer = new byte[DEFAULT_LOAD_SIZE];
-		ArrayList<PlateauDeSable> programme = new ArrayList<>();
+		ArrayList<PlateauDeSable> program = new ArrayList<>();
 		PlateauDeSable crt;
 		
 		try {
@@ -62,13 +62,13 @@ public class MachinaMagnifica {
 				
 				
 				crt.setData(readerBuffer);
-				programme.add(crt);
+				program.add(crt);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
-		memoire.setProgramData(programme);
+		memoire.setProgramData(program);
 	}
 
 	public void run() throws IOException {
@@ -202,7 +202,7 @@ public class MachinaMagnifica {
 	
 	// 4: Multiplication
 	public void mul(Registre a, Registre b, Registre c) {
-		a.setData(c.toInt() * b.toInt());
+		a.setData(c.toLong() * b.toLong());
 	}
 
 	// 5: Division

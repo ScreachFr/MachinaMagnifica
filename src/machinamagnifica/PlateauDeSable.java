@@ -54,10 +54,31 @@ public class PlateauDeSable {
 	public int toInt() {
 		return getDataOffset(0);
 	}
+	
+	public long toLong() {
+		long result = 0;
 
+		for (int i = 0; i < data.length; i++) {
+			if (data[i])
+				result += Math.pow(2, i);
+		}
+
+		return result;
+	}
+	
 	public void setData(int d) {
 		Arrays.fill(data, false);
-
+		
+		for (int i = DEFAULT_DATA_SIZE-1; i >= 0; i--) {
+			data[i] = (d & (1 << i)) != 0;
+		}
+	}
+	
+	public void setData(long d) {
+		Arrays.fill(data, false);
+		
+		d = d & 0xFFFFFFFFl;
+		
 		for (int i = DEFAULT_DATA_SIZE-1; i >= 0; i--) {
 			data[i] = (d & (1 << i)) != 0;
 		}

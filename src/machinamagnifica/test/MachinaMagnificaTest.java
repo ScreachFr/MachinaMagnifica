@@ -1,7 +1,9 @@
 package machinamagnifica.test;
 
 import static org.junit.Assert.*;
+import machinamagnifica.InvalidDataException;
 import machinamagnifica.MachinaMagnifica;
+import machinamagnifica.PlateauDeSable;
 import machinamagnifica.Registre;
 
 import org.junit.Test;
@@ -34,13 +36,39 @@ public class MachinaMagnificaTest {
 		b = new Registre();
 		c = new Registre();
 		
-		a.setData(1);
+		c.setData(1);
 		b.setData(1);
 		
 		
 		mm.add(a, b, c);
 		
-		assertTrue(c.toInt() == 2);
+		assertTrue(a.toInt() == 2);
+	}
+	
+	@Test
+	public void additionLimite() {
+		MachinaMagnifica mm = new MachinaMagnifica(null);
+		
+		Registre a, b, c;
+		
+		a = new Registre();
+		b = new Registre();
+		c = new Registre();
+		
+		try {
+			c.setData("11111111111111111111111111111111");
+		} catch (InvalidDataException e) {
+			e.printStackTrace();
+		}
+		b.setData(1);
+		
+		
+		mm.add(a, b, c);
+		
+		
+		
+		assertEquals(0, a.toLong());
+
 	}
 	
 	@Test
@@ -93,16 +121,14 @@ public class MachinaMagnificaTest {
 		b = new Registre();
 		c = new Registre();
 		
-		a.setData(2);
+		c.setData(2);
 		b.setData(2);
 		
 		mm.mul(a, b, c);
 		
-		assertEquals(a.toInt(), 2);
-		assertEquals(b.toInt(), 2);
-		assertEquals(c.toInt(), 4);
+		assertEquals(2, c.toInt());
+		assertEquals(2, b.toInt());
+		assertEquals(4, a.toInt());
 	}
 	
-	
-
 }

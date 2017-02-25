@@ -81,10 +81,6 @@ public class MachinaMagnifica {
 		
 		
 		while (isOn) {
-			tour++;
-			
-//			if (tour >= 100)
-//				stop();
 			crtInstruction = memoire.getData(0)[finger];
 			op = crtInstruction.getOperator();
 			reg = crtInstruction.getRegistres();
@@ -153,7 +149,7 @@ public class MachinaMagnifica {
 			case 13:
 				int value = crtInstruction.getSpecialValue();
 				int spReg = crtInstruction.getSpecialRegistre();
-				
+
 				if (DEBUG)
 					logsOut.println("Running special op 13 on registre " + spReg + " with value " + (char)value + "(" + value + ")");
 				orthographe(crtInstruction);
@@ -179,15 +175,16 @@ public class MachinaMagnifica {
 
 	// 0: Mouvement conditionnel
 	public void ifC(Registre a, Registre b, Registre c) {
-		if (!c.equalsZero())
+		if (!c.equalsZero()) 
 			a.copyFrom(b);
+		
 	}
 
 	// 1: Indice tableau
 	public void getOffset(Registre a, Registre b, Registre c) {
 		int offset = c.toInt(); 
 		int address = b.toInt();
-		a.setData(memoire.getData(address)[offset].getData());
+		a.setData(memoire.getDataOffset(address, offset).getData());
 	}
 
 	// 2: Modification tableau (=amendment)
@@ -195,14 +192,14 @@ public class MachinaMagnifica {
 		int adress = a.toInt();
 		int offset = b.toInt();
 		
-		memoire.getData(adress)[offset].setData(c.getData());
+		memoire.setDataOffset(adress, offset, c);
 	}
 
 	// 3: Addition
 	public void add(Registre a, Registre b, Registre c) {
-		a.setData(b.toInt() + c.toInt());
+		a.setData(b.toLong() + c.toLong());
 	}
-
+	
 	// 4: Multiplication
 	public void mul(Registre a, Registre b, Registre c) {
 		a.setData(c.toInt() * b.toInt());
@@ -243,16 +240,15 @@ public class MachinaMagnifica {
 		}
 		
 		memoire.alloc(address, size);
-
 		b.setData(address);
 	}
 
-	// 9: Abandon
+	// 9: Abandon XXX Test ok
 	public void free(Registre c) {
 		memoire.free(c.toInt());
 	}
 
-	// 10: Sortie
+	// 10: Sortie XXX Test ok
 	public void print(Registre c) {
 		int toPrint = c.toInt();
 		

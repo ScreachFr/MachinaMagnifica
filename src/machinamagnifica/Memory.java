@@ -48,6 +48,14 @@ public class Memory {
 		}
 	}
 	
+	public void setDataOffset(int address, int offset, PlateauDeSable data) {
+		memory[address][offset].setData(data.getData());
+	}
+	
+	public PlateauDeSable getDataOffset(int address, int offset) {
+		return memory[address][offset];
+	}
+	
 	public void appendData(int address, PlateauDeSable data) {
 		PlateauDeSable[] old = memory[address];
 		PlateauDeSable[] result = new PlateauDeSable[old.length + 1];
